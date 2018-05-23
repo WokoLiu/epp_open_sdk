@@ -22,10 +22,17 @@ class OpenAuth(object):
 
     def encode(self, text):
         """AES encrypt"""
-        cryptor = AES.new(self._auth_secret, AES.MODE_ECB, AES.block_size * '\0')
+        cryptor = AES.new(self._auth_secret, AES.MODE_ECB, AES.block_size*'\0')
         BS = AES.block_size
         pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
         return cryptor.encrypt(pad(text)).encode('hex')
+
+    def decode(self, text):
+        """AES decrypt"""
+        cryptor = AES.new(self._auth_secret, AES.MODE_ECB, AES.block_size*'\0')
+        res = cryptor.decrypt(text.decode('hex'))
+        unpad = lambda s: s[0:-ord(s[-1])]
+        return unpad(res)
 
     def get_headers(self, method, url, portal_name, params):
         """add common params and sign to headers"""
@@ -69,6 +76,7 @@ def demo_request(host):
         'chinese_test': '中文',
         'bool_test': True,
         'encode_test': auth.encode('中文+english'),
+        'decode_test': '测试',
     }
     url = host + '/api/open_external_service/demo/demo'
 
@@ -77,8 +85,11 @@ def demo_request(host):
 
     res = requests.get(url, params=params, headers=headers)
     print res.text
+    data = res.json()
+    decode_test = data.get('result', {}).get('decode_test', '')
+    if decode_test:
+        print auth.decode(decode_test)
 
 if __name__ == '__main__':
-    # host = 'https://openapi.hillinsight.com'
-    host = 'http://0.0.0.0:4488'
+    host = 'https://openapi.hillinsight.com'
     demo_request(host)
