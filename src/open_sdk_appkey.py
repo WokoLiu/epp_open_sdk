@@ -66,10 +66,10 @@ class OpenAuth(object):
 def demo_request(host):
     app_key = 'lalala_app_key'
     app_secret = 'lalala_app_secret'
-    secret = md5(app_secret).hexdigest()
+    # secret = md5(app_secret).hexdigest()
     portal_name = 'skyfield'
     api = '/api/open_external_service/demo/demo'
-    auth = OpenAuth(app_key, secret)
+    auth = OpenAuth(app_key, app_secret)
 
     params = {
         'int_test': 100,
