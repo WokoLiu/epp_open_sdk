@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-# @Time    : 2018/5/23 09:44
+# @Time    : 2018/5/31 17:59
 # @Author  : Yulong Liu
-# @File    : open_sdk.py
+# @File    : open_sdk_appkey.py
 
 import requests
 import time
@@ -44,7 +44,7 @@ class OpenAuth(object):
             'PortalName': portal_name,
             'Salt': salt,
             'TimeStamp': str(timestamp),
-            'AuthKey': self._auth_key,
+            'AppKey': self._auth_key,
         }
         sign_params = {k: v for k, v in params.iteritems()}
         sign_params.update(headers)
@@ -64,11 +64,12 @@ class OpenAuth(object):
 
 
 def demo_request(host):
-    auth_key = 'AuthKeyTest'
-    auth_secret = 'AuthSecretTest01'
-    portal_name = 'topsports'
+    app_key = 'lalala_app_key'
+    app_secret = 'lalala_app_secret'
+    secret = md5(app_secret).hexdigest()
+    portal_name = 'skyfield'
     api = '/api/open_external_service/demo/demo'
-    auth = OpenAuth(auth_key, auth_secret)
+    auth = OpenAuth(app_key, secret)
 
     params = {
         'int_test': 100,
@@ -82,9 +83,9 @@ def demo_request(host):
 
     print auth.encode('测试')
 
-    headers = auth.get_headers('get', api, portal_name, params)
+    headers = auth.get_headers('post', api, portal_name, params)
 
-    res = requests.get(host+api, params=params, headers=headers)
+    res = requests.post(host+api, params=params, headers=headers)
     print res.text
     data = res.json()
     decode_test = data.get('result', {}).get('decode_test', '')
@@ -92,5 +93,5 @@ def demo_request(host):
         print auth.decode(decode_test)
 
 if __name__ == '__main__':
-    host = 'https://openapi.hillinsight.com'
+    host = 'https://openapi.hillinsight.com:59687'
     demo_request(host)
